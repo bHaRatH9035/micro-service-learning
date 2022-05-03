@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: native, local
+  cloud:
+    consul:
+      host: consul-discovery-server
+      port: 8500
+    config:
+      server:
+        native:
+          search-locations: classpath:/config
+
+server:
+  port: 8080

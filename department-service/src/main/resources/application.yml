@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: department-service
+  profiles:
+    active: local
+  cloud:
+    config:
+      uri: http://config-server:8080/
+      name: application
+    consul:
+      host: consul-discovery-server
+      port: 8500
+  config:
+    import: "optional:configserver:"
+  rabbitmq:
+    host: rabbitmq
+    port: 15672
+    username: guest
+    password: guest
+
+server:
+  port: 8082

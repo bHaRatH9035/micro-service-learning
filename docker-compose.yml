@@ -1,0 +1,63 @@
+version: "3"
+networks:
+  local:
+    driver: bridge
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - './rabbitmqData:/data'
+  consul-discovery-server:
+    container_name: consul-discovery-server
+    image: consul
+    networks:
+      - local
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+    command: "agent -server -ui -node=server-1 -bootstrap-expect=1 -client=0.0.0.0"
+  config-server:
+    container_name: config-server
+    image: openjdk
+    networks:
+      - local
+      - default
+    volumes:
+      - "./config-server/target/config-server-0.0.1-SNAPSHOT.jar:/app.jar"
+    ports:
+      - "8080:8080"
+    command: "java -jar app.jar"
+    depends_on:
+      - consul-discovery-server
+      - rabbitmq
+  student-service:
+    container_name: student-service
+    image: openjdk
+    networks:
+      - local
+    volumes:
+      - "./student-service/target/student-service-0.0.1-SNAPSHOT.jar:/app.jar"
+    ports:
+      - "8081:8081"
+    command: "java -jar app.jar"
+    depends_on:
+      - consul-discovery-server
+      - config-server
+      - rabbitmq
+  department-service:
+    container_name: department-service
+    image: openjdk
+    networks:
+      - local
+    volumes:
+      - "./department-service/target/department-service-0.0.1-SNAPSHOT.jar:/app.jar"
+    ports:
+      - "8082:8082"
+    command: "java -jar app.jar"
+    depends_on:
+      - consul-discovery-server
+      - config-server
+      - rabbitmq
